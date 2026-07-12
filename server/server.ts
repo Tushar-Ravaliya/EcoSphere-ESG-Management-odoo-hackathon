@@ -19,6 +19,8 @@ import rewardRoutes from "./routes/reward.routes.js";
 import policyRoutes from "./routes/policy.routes.js";
 import complianceIssueRoutes from "./routes/complianceIssue.routes.js";
 import dashboardRoutes from "./routes/dashboard.routes.js";
+import environmentalGoalRoutes from "./routes/environmentalGoal.routes.js";
+import environmentalReportRoutes from "./routes/environmentalReport.routes.js";
 
 connectDB();
 
@@ -45,6 +47,8 @@ app.use("/api/rewards", rewardRoutes);
 app.use("/api/policies", policyRoutes);
 app.use("/api/compliance-issues", complianceIssueRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/environmental-goals", environmentalGoalRoutes);
+app.use("/api/environmental-report", environmentalReportRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
