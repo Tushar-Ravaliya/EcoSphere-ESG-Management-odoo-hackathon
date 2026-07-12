@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSettingsStore } from '../store/settingsStore';
+import { useAuthStore } from '../store/authStore';
 import { api } from '../services/api';
 import { 
   Settings as SettingsIcon, 
@@ -8,7 +9,8 @@ import {
   Building2, 
   FolderPlus, 
   Plus, 
-  Loader2
+  Loader2,
+  FileText
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -40,6 +42,55 @@ export const Settings: React.FC = () => {
 
   const [catName, setCatName] = useState('');
   const [catType, setCatType] = useState<'CSR Activity' | 'Challenge'>('CSR Activity');
+ 
+  // Report states
+  const [reportFormat, setReportFormat] = useState('pdf');
+  const [reportModule, setReportModule] = useState('all');
+  const [reportFrom, setReportFrom] = useState('');
+  const [reportTo, setReportTo] = useState('');
+  const [reportDept, setReportDept] = useState('');
+  const [exporting, setExporting] = useState(false);
+
+  const handleExportReport = async () => {
+    setExporting(true);
+    try {
+      const token = useAuthStore.getState().token;
+      
+      const params = new URLSearchParams();
+      params.append('format', reportFormat);
+      params.append('module', reportModule);
+      if (reportFrom) params.append('from', reportFrom);
+      if (reportTo) params.append('to', reportTo);
+      if (reportDept) params.append('department', reportDept);
+
+      const response = await fetch(`http://localhost:5000/api/reports/export?${params.toString()}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate report');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `EcoSphere_ESG_Report_${reportModule}_${new Date().toISOString().split('T')[0]}.${reportFormat === 'excel' ? 'xlsx' : 'pdf'}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      
+      toast.success(`${reportFormat.toUpperCase()} Report downloaded!`);
+    } catch (err: any) {
+      console.error(err);
+      toast.error('Failed to export report');
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const fetchSettingsData = async () => {
     try {
@@ -310,6 +361,97 @@ export const Settings: React.FC = () => {
 
         </div>
 
+      </div>
+
+      {/* Unified ESG Report Exporter */}
+      <div className="glass-panel p-6 rounded-3xl shadow-sm space-y-6">
+        <h2 className="text-slate-600 font-bold text-sm uppercase tracking-wider mb-4 flex items-center">
+          <FileText size={18} className="mr-2 text-indigo-500" />
+          <span>Unified ESG & Gamification Report Exporter</span>
+        </h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
+          <div>
+            <label className="block text-[10px] font-extrabold uppercase tracking-wide text-slate-500 mb-1.5">Module Scope</label>
+            <select
+              value={reportModule}
+              onChange={(e) => setReportModule(e.target.value)}
+              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20"
+            >
+              <option value="all">All Modules</option>
+              <option value="environmental">Environmental Only</option>
+              <option value="social">Social Only</option>
+              <option value="governance">Governance Only</option>
+              <option value="gamification">Gamification Only</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-extrabold uppercase tracking-wide text-slate-500 mb-1.5">Format</label>
+            <select
+              value={reportFormat}
+              onChange={(e) => setReportFormat(e.target.value)}
+              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20"
+            >
+              <option value="pdf">PDF Document</option>
+              <option value="excel">Excel Spreadsheet</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-extrabold uppercase tracking-wide text-slate-500 mb-1.5">Department Filter</label>
+            <select
+              value={reportDept}
+              onChange={(e) => setReportDept(e.target.value)}
+              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20"
+            >
+              <option value="">All Departments</option>
+              {departments.map((d) => (
+                <option key={d._id} value={d._id}>{d.name}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-extrabold uppercase tracking-wide text-slate-500 mb-1.5">Date From</label>
+            <input
+              type="date"
+              value={reportFrom}
+              onChange={(e) => setReportFrom(e.target.value)}
+              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20"
+            />
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-extrabold uppercase tracking-wide text-slate-500 mb-1.5">Date To</label>
+            <input
+              type="date"
+              value={reportTo}
+              onChange={(e) => setReportTo(e.target.value)}
+              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500/20"
+            />
+          </div>
+
+          <div>
+            <button
+              onClick={handleExportReport}
+              disabled={exporting}
+              className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-600/10 flex items-center justify-center space-x-1.5 cursor-pointer h-[34px] disabled:opacity-50"
+            >
+              {exporting ? (
+                <>
+                  <Loader2 size={14} className="animate-spin" />
+                  <span>Generating...</span>
+                </>
+              ) : (
+                <>
+                  <FileText size={14} />
+                  <span>Export Report</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
       </div>
 
     </div>

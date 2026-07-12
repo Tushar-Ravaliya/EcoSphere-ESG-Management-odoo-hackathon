@@ -59,6 +59,7 @@ export const Gamification: React.FC = () => {
   const [allBadges, setAllBadges] = useState<Badge[]>([]);
   const [unlockedBadges, setUnlockedBadges] = useState<UnlockedBadge[]>([]);
   const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
+  const [reportSummary, setReportSummary] = useState<any>(null);
 
   // Modal
   const [isRewardModalOpen, setIsRewardModalOpen] = useState(false);
@@ -70,15 +71,17 @@ export const Gamification: React.FC = () => {
 
   const fetchGamificationData = async () => {
     try {
-      const [rewardsData, badgesData, lbData] = await Promise.all([
+      const [rewardsData, badgesData, lbData, reportData] = await Promise.all([
         api.get('/rewards'),
         api.get('/badges'),
-        api.get('/employees/leaderboard')
+        api.get('/employees/leaderboard'),
+        api.get('/gamification-report/summary')
       ]);
 
       setRewards(rewardsData);
       setAllBadges(badgesData);
       setLeaderboard(lbData);
+      setReportSummary(reportData);
 
       if (user) {
         const myBadges = await api.get(`/badges/employee/${user._id}`);
@@ -191,6 +194,35 @@ export const Gamification: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Gamification Stats Summary row */}
+      {reportSummary && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+            <p className="text-[10px] font-bold text-slate-400 uppercase">Average Employee XP</p>
+            <p className="text-lg font-extrabold text-slate-800 mt-1">{reportSummary.xp?.average ?? 0} XP</p>
+            <p className="text-[10px] text-slate-400 mt-0.5">Highest: {reportSummary.xp?.highest ?? 0} XP</p>
+          </div>
+          
+          <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+            <p className="text-[10px] font-bold text-slate-400 uppercase">Challenge Completion</p>
+            <p className="text-lg font-extrabold text-slate-800 mt-1">{reportSummary.challenges?.participationRate ?? 0}%</p>
+            <p className="text-[10px] text-slate-400 mt-0.5">Approved: {reportSummary.challenges?.approved ?? 0} / {reportSummary.challenges?.participations ?? 0}</p>
+          </div>
+
+          <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+            <p className="text-[10px] font-bold text-slate-400 uppercase">Badge Unlock Rate</p>
+            <p className="text-lg font-extrabold text-slate-800 mt-1">{reportSummary.badges?.unlockRate ?? 0}%</p>
+            <p className="text-[10px] text-slate-400 mt-0.5">Unlocked: {reportSummary.badges?.unlocked ?? 0} total badges</p>
+          </div>
+
+          <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+            <p className="text-[10px] font-bold text-slate-400 uppercase">Average Points Banked</p>
+            <p className="text-lg font-extrabold text-slate-800 mt-1">{reportSummary.rewards?.avgPoints ?? 0} Pts</p>
+            <p className="text-[10px] text-slate-400 mt-0.5">Cumulative: {reportSummary.rewards?.totalPoints ?? 0} Pts</p>
+          </div>
+        </div>
+      )}
 
       {/* Tabs Menu */}
       <div className="flex border-b border-slate-200">
