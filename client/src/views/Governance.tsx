@@ -178,7 +178,7 @@ export const Governance: React.FC = () => {
 
   const handleResolveIssue = async (issueId: string) => {
     try {
-      await api.patch(`/compliance-issues/${issueId}`, { status: 'Resolved' });
+      await api.patch(`/compliance-issues/${issueId}/resolve`);
       toast.success('Compliance issue resolved');
       fetchGovernanceData();
     } catch (err: any) {
