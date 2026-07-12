@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const complianceIssueSchema = new mongoose.Schema(
   {
-    auditTitle: { type: String, required: true }, // simplified stand-in for a full Audit model
+    audit: { type: mongoose.Schema.Types.ObjectId, ref: "Audit", required: true },
     severity: { type: String, enum: ["Low", "Medium", "High", "Critical"], required: true },
     description: { type: String },
     owner: { type: mongoose.Schema.Types.ObjectId, ref: "Employee", required: true },

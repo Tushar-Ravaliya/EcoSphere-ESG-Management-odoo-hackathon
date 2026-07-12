@@ -21,6 +21,9 @@ import complianceIssueRoutes from "./routes/complianceIssue.routes.js";
 import dashboardRoutes from "./routes/dashboard.routes.js";
 import environmentalGoalRoutes from "./routes/environmentalGoal.routes.js";
 import environmentalReportRoutes from "./routes/environmentalReport.routes.js";
+import auditRoutes from "./routes/audit.routes.js";
+import socialReportRoutes from "./routes/socialReport.routes.js";
+import governanceReportRoutes from "./routes/governanceReport.routes.js";
 
 connectDB();
 
@@ -49,6 +52,9 @@ app.use("/api/compliance-issues", complianceIssueRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/environmental-goals", environmentalGoalRoutes);
 app.use("/api/environmental-report", environmentalReportRoutes);
+app.use("/api/audits", auditRoutes);
+app.use("/api/social-report", socialReportRoutes);
+app.use("/api/governance-report", governanceReportRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
