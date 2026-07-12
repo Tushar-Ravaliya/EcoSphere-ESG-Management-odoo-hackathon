@@ -1,7 +1,6 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import morgan from "morgan";
-import dotenv from "dotenv";
 import { connectDB } from "./config/db.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
 
@@ -21,7 +20,6 @@ import policyRoutes from "./routes/policy.routes.js";
 import complianceIssueRoutes from "./routes/complianceIssue.routes.js";
 import dashboardRoutes from "./routes/dashboard.routes.js";
 
-dotenv.config();
 connectDB();
 
 const app = express();
