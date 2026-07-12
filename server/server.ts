@@ -25,6 +25,7 @@ import auditRoutes from "./routes/audit.routes.js";
 import socialReportRoutes from "./routes/socialReport.routes.js";
 import governanceReportRoutes from "./routes/governanceReport.routes.js";
 
+dns.setServers(["8.8.8.8"]);
 connectDB();
 
 const app = express();
@@ -33,7 +34,9 @@ app.use(cors({ origin: process.env.CLIENT_URL || "*" }));
 app.use(express.json());
 app.use(morgan("dev"));
 
-app.get("/", (req: Request, res: Response) => res.json({ status: "EcoSphere API running" }));
+app.get("/", (req: Request, res: Response) =>
+  res.json({ status: "EcoSphere API running" }),
+);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/departments", departmentRoutes);
