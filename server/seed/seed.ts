@@ -19,6 +19,7 @@ import Badge from "../models/Badge.js";
 import Reward from "../models/Reward.js";
 import Policy from "../models/Policy.js";
 import ComplianceIssue from "../models/ComplianceIssue.js";
+import Audit from "../models/Audit.js";
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ const run = async (): Promise<void> => {
     Reward.deleteMany(),
     Policy.deleteMany(),
     ComplianceIssue.deleteMany(),
+    Audit.deleteMany(),
   ]);
 
   const engineering = await Department.create({ name: "Engineering", code: "ENG", employeeCount: 2 });
@@ -135,10 +137,30 @@ const run = async (): Promise<void> => {
   ]);
 
   await Policy.create({ title: "Code of Conduct 2026", description: "Annual acknowledgement of company conduct policy" });
+ 
+  const envAudit = await Audit.create({
+    title: "Q2 Environmental Audit",
+    description: "Quarterly review of carbon footprints and greenhouse gas reports",
+    auditor: admin._id,
+    department: engineering._id,
+    scheduledDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+    completedDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+    status: "Completed",
+    findings: "Minor issues found regarding carbon reporting intervals"
+  });
+
+  const privacyAudit = await Audit.create({
+    title: "Data Privacy Review",
+    description: "Bi-annual verification of compliance with privacy protocols",
+    auditor: admin._id,
+    department: null,
+    scheduledDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+    status: "In Progress"
+  });
 
   await ComplianceIssue.create([
     {
-      auditTitle: "Q2 Environmental Audit",
+      audit: envAudit._id,
       severity: "Medium",
       description: "Missing emission logs for March",
       owner: admin._id,
@@ -146,7 +168,7 @@ const run = async (): Promise<void> => {
       status: "Open",
     },
     {
-      auditTitle: "Data Privacy Review",
+      audit: privacyAudit._id,
       severity: "High",
       description: "Employee data access policy needs update",
       owner: admin._id,

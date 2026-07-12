@@ -25,6 +25,7 @@ import auditRoutes from "./routes/audit.routes.js";
 import socialReportRoutes from "./routes/socialReport.routes.js";
 import governanceReportRoutes from "./routes/governanceReport.routes.js";
 
+import dns from "node:dns";
 dns.setServers(["8.8.8.8"]);
 connectDB();
 
